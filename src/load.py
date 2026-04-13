@@ -1,14 +1,7 @@
 import psycopg2
 import logging
 
-logging.basicConfig(
-    filename="logs/load.log",
-    format='%(asctime)s %(levelname)s : %(message)s',
-    filemode='a'
-)
-
-logger=logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 try:
     conn=psycopg2.connect(
@@ -37,7 +30,6 @@ try:
                     id SERIAL PRIMARY KEY,
                     run_id INT REFERENCES pipeline_runs(run_id),
                     total_rows BIGINT,
-                    rows_deleted INT,
                     duplicates_dropped INT,
                     values_replaced INT,
                     error_message VARCHAR(50)
