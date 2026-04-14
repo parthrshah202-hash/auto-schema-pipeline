@@ -1,1 +1,3 @@
 test_connection.py
+data/raw/
+data/cleaned/
