@@ -1,3 +1,7 @@
-test_connection.py
-data/raw/
-data/cleaned/
+data/raw/*
+!data/raw/.gitkeep
+data/cleaned/*
+!data/cleaned/.gitkeep
+src/__pycache__/
+*.pyc
+logs/
