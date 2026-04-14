@@ -1,0 +1,7 @@
+2026-04-14 12:32:45,810 INFO: data/raw/server_logs.csv file has been read successfully
+2026-04-14 12:32:45,820 INFO: Filled the Missing values
+2026-04-14 12:32:45,829 INFO: Dropped Duplicates
+2026-04-14 12:32:45,829 INFO: Data Cleaned
+2026-04-14 12:32:45,833 INFO: Row added in pipeline_runs successfully
+2026-04-14 12:32:45,835 INFO: Row added in validate_result successfully
+2026-04-14 12:32:45,835 INFO: Pipeline runs Successfully

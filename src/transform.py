@@ -37,4 +37,4 @@ def clean_data(df):
     
     
     logger.info("Data Cleaned")
-    return df,total_rows,missing_values,duplicate_rows_dropped
+    return df,int(total_rows),int(missing_values),int(duplicate_rows_dropped)

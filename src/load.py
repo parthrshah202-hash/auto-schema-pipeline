@@ -40,3 +40,37 @@ try:
 except Exception as e:
     logger.error(f"Database setup failed: {e}")
     exit(1)
+    
+    
+def insert_pipeline_runs(stamp,name,size,duration,status,trigger):
+    try:
+        query = """
+            INSERT INTO pipeline_runs (runtime_stamp, file_name, file_size, duration, status, triggered_by)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING run_id
+        """
+        params = (stamp, name, size, duration, status, trigger)
+        cursor.execute(query, params)
+        run_id=cursor.fetchone()[0]
+        conn.commit()
+        
+        logger.info("Row added in pipeline_runs successfully")
+        return run_id
+    except Exception as e:
+        logger.error(f"Row failed to be added in pipeline_runs : {e}")
+        exit(1)
+        
+def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,error_message):
+    try:
+        query = """
+            INSERT INTO validate_result (run_id, total_rows, duplicates_dropped, values_replaced, error_message)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        params = (run_id, total_rows, duplicates_dropped, values_replaced, error_message)
+        cursor.execute(query, params)
+        conn.commit()
+        
+        logger.info("Row added in validate_result successfully")
+    except Exception as e:
+        logger.error(f"Row failed to be added in validate_result : {e}")
+        exit(1)
