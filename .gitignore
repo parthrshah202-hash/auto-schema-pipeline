@@ -5,3 +5,4 @@ data/cleaned/*
 src/__pycache__/
 *.pyc
 logs/
+.env
