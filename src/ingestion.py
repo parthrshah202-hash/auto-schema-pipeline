@@ -21,7 +21,7 @@ def load_data(filepath):
     try:
         df=pd.read_csv(filepath,skip_blank_lines=True)
         logger.info(f"{filepath} file has been read successfully")
-        file_name=Path(filepath).name
+        file_name=Path(filepath).stem
         file_size=os.path.getsize(filepath)
         return df, file_name, file_size
     
