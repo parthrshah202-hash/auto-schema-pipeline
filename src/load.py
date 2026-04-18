@@ -125,7 +125,7 @@ def create_table(table_name,schema_dict,engine):
 def insert_data(table_name,df,engine):
     with engine.connect() as connection:
         try:
-            df.to_sql(name=table_name,con=engine,if_exists='replace')
+            df.to_sql(name=table_name,con=engine,if_exists='append')
             logger.info(f"Data added in {table_name} successfully")
         except Exception as e:
             logger.error(f"Addition of data to {table_name} failed : {e}")
