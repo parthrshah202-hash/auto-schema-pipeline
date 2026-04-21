@@ -22,7 +22,7 @@ def build_prompt(df,file_name,table_name,schema_dict,total_rows,duplicate_rows_d
     and also give correct SQL queries to get answers to those questions..Respond in JSON only,
     no extra text, no explanation nothing extra .Just follow this exact JSON structure-
     {{ "question 1": "SQL query 1", "question 2": "SQL query 2" }}"""
-    logger.info("Prompt built generated successfully")
+    logger.info("Prompt built successfully")
     return prompt
     
         

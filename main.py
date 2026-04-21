@@ -7,6 +7,9 @@ import ingestion
 import transform
 import load
 import schema_detector
+import gemini
+import validate_query
+import execute_query
 import analysis
 
 
@@ -24,11 +27,8 @@ trigger="Manual"
 
 try:
     engine=load.get_connection()
-    
     load.set_up_tables(engine)
-    
     raw_data,file_name,file_size = ingestion.load_data("data/raw/server_logs.csv")
-    
     cleaned_data,total_rows,missing_values,duplicate_rows_dropped = transform.clean_data(raw_data)
     
     schema_dict=schema_detector.detect_schema(cleaned_data)
@@ -36,17 +36,20 @@ try:
     table_name=file_name
     
     load.create_table(table_name,schema_dict,engine)
-    
     load.insert_data(table_name,cleaned_data,engine)
+    
+    prompt=gemini.build_prompt(cleaned_data,file_name,table_name,schema_dict,total_rows,duplicate_rows_dropped)
+    analysis_dict=gemini.get_analysis(prompt)
+    valid_queries=validate_query.validate(analysis_dict,table_name,schema_dict)
+    analysis_result=execute_query.execute_query(valid_queries,engine)
+    
     
     end_time=datetime.now()
     duration=int((end_time-start_time).total_seconds())
     status="Success"
     
     run_id = load.insert_pipeline_runs(start_time,file_name,file_size,duration,status,trigger,engine)
-    
     error=None
-    
     load.insert_validate_result(run_id,total_rows,missing_values,duplicate_rows_dropped,error,engine)
     
     logger.info("Pipeline runs Successfully")
