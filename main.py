@@ -40,8 +40,10 @@ try:
     
     prompt=gemini.build_prompt(cleaned_data,file_name,table_name,schema_dict,total_rows,duplicate_rows_dropped)
     analysis_dict=gemini.get_analysis(prompt)
-    valid_queries=validate_query.validate(analysis_dict,table_name,schema_dict)
+    valid_queries,discarded_queries=validate_query.validate(analysis_dict,table_name,schema_dict)
     analysis_result=execute_query.execute_query(valid_queries,engine)
+    if not analysis_result:
+        logger.warning("No valid queries were executed. Analysis result is empty.")
     
     
     end_time=datetime.now()
