@@ -17,7 +17,7 @@ def save_plot(run_id,question):
     slug=get_slug(question)
     plot_name=str(run_id)+"_"+slug
     
-    file_path=Path(f"outputs/{plot_name}.png")
+    file_path=Path(f"outputs/graphs/{plot_name}.png")
     file_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(file_path)
     plt.close()

@@ -62,7 +62,7 @@ try:
     file_data={"file_name":file_name,"file_size":file_size,"file_inserted":insertion_date}
     file_info={"total_rows":total_rows,"total_columns":cleaned_data.shape[1],"missing_values":missing_values,"duplicate_rows_dropped":duplicate_rows_dropped}
     output_data={"file_data":file_data,"file_info":file_info,"analysis_result":analysis_result,"discarded_queries":discarded_queries}
-    file_path=Path(f"outputs/results_{run_id}.json")
+    file_path=Path(f"outputs/json/results_{run_id}.json")
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path,"w",encoding='utf-8') as f:
         json.dump(output_data,f,default=str,indent=4)
