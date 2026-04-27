@@ -6,11 +6,16 @@ import logging
 plt.style.use('seaborn-v8')
 logger = logging.getLogger(__name__)
 
-def save_plot(run_id,question):
-    temp=question.lower().replace(" ","_")
+def get_slug(question):
+    slug=question.lower().replace(" ","_")
     for char in ["?", "/", "\\", ":", "*", "<", ">", "|", "\""]:
-        temp=temp.replace(char,"")
-    plot_name=str(run_id)+"_"+temp
+        slug=slug.replace(char,"")
+    return slug
+    
+
+def save_plot(run_id,question):
+    slug=get_slug(question)
+    plot_name=str(run_id)+"_"+slug
     
     file_path=Path(f"outputs/{plot_name}.png")
     file_path.parent.mkdir(parents=True, exist_ok=True)
