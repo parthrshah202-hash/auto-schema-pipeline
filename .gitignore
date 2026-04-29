@@ -5,9 +5,9 @@ data/cleaned/*
 src/__pycache__/
 *.pyc
 logs/
-outputs/json/
-outputs/graphs/
-outputs/reports/
+outputs/json/*
+outputs/graphs/*
+outputs/reports/*
 !outputs/json/.gitkeep
 !outputs/graphs/.gitkeep
 !outputs/reports/.gitkeep
