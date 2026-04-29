@@ -5,4 +5,7 @@ data/cleaned/*
 src/__pycache__/
 *.pyc
 logs/
+outputs/json/
+outputs/graphs/
+outputs/reports/
 .env

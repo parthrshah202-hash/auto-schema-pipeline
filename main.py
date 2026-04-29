@@ -11,6 +11,8 @@ import gemini
 import validate_query
 import execute_query
 import visualise
+import report
+import itertools
 import json
 
 
@@ -47,6 +49,14 @@ try:
     if not analysis_result:
         logger.warning("No valid queries were executed. Analysis result is empty.")
     
+    for question,answer in list(analysis_result.items()):
+        if len(answer) > 10:
+            if(isinstance(answer,list)):
+                analysis_result[question]=answer[:10]
+            elif(isinstance(answer,dict)):
+                analysis_result[question]=dict(itertools.islice(answer.items(), 10))
+                
+    
     end_time=datetime.now()
     duration=int((end_time-start_time).total_seconds())
     status="Success"
@@ -66,6 +76,8 @@ try:
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path,"w",encoding='utf-8') as f:
         json.dump(output_data,f,default=str,indent=4)
+        
+    report.create_report(run_id)
     
     logger.info("Pipeline runs Successfully")
     

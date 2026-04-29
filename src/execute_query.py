@@ -10,7 +10,7 @@ def execute_query(valid_queries,engine):
         for question,query in valid_queries.items():
             try:
                 result=connection.execute(text(query))
-                answer=result.fetchall()
+                answer = [dict(row._mapping) for row in result.fetchall()]
                 logger.info(f"Query executed successfully for question : '{question}'")
                 analysis[question]=answer
             except Exception as e:

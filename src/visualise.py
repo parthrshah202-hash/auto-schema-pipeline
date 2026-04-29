@@ -3,7 +3,7 @@ from pathlib import Path
 import statistics
 import logging
 
-plt.style.use('seaborn-v8')
+plt.style.use('seaborn-v0_8')
 logger = logging.getLogger(__name__)
 
 def get_slug(question):
