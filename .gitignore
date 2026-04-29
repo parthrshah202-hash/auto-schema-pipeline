@@ -8,4 +8,7 @@ logs/
 outputs/json/
 outputs/graphs/
 outputs/reports/
+!outputs/json/.gitkeep
+!outputs/graphs/.gitkeep
+!outputs/reports/.gitkeep
 .env
