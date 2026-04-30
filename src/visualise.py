@@ -126,5 +126,27 @@ def map_graph_types(run_id,analysis_result):
                                     
                 if graph=="line_chart":
                     create_line_chart(run_id,question,answer)
+                else:
+                    # it's a list of dicts with categorical string keys - bar chart
+                    temp={}
+                    for dictionary in answer:
+                        values = list(dictionary.values())
+                        label = values[0]
+                        number = values[1]
+                        temp[label]=number
+                    
+                    for key,value in temp.items():
+                        key_type=type(key)
+                        value_type=type(value)
+                        if key_type==str and (value_type==int or value_type==float):
+                            if len(answer) <= 7 :
+                                graph="pie_chart" 
+                            else:
+                                graph="bar_chart"  
+                                          
+                if graph=="bar_chart":
+                    create_bar_chart(run_id,question,temp)
+                elif graph=="pie_chart":
+                    create_pie_graph(run_id,question,temp)
         else:
             logger.error("Answer list is empty")

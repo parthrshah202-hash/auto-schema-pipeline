@@ -4,136 +4,159 @@ from pathlib import Path
 import visualise
 import logging
 
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-title="Analysis Report"
+def add_section(pdf, text):
+    pdf.set_font("Arial", "BU", 18)
+    pdf.set_text_color(255, 0, 0)
+    pdf.ln(5)
+    pdf.set_x(pdf.l_margin)
+    pdf.multi_cell(0, 10, text, align='C')
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(3)
 
-class PDF(FPDF):
-    '''
-    def header(self):
-        self.set_font('Arial', 'B', 22)
-        self.set_fill_color(5, 5, 5)
-        self.set_text_color(252, 250, 250)
-        self.set_line_width(1)
-        self.cell(0, 10, title, border=1, align='C', fill=True)
-        self.set_text_color(0, 0, 0)
-        self.set_line_width(0.2)
 
-        
-    def footer(self):
-        # Set position of the footer
-        self.set_y(-15)
-        
-        # set font
-        self.set_font('Arial', 'I', 8)
-        
-        self.set_text_color(169,169,169) #grey
-        
-        # Page number
-        self.cell(0, 10, f'Page {self.page_no()}', align='C')
-    '''
+def add_question(pdf, text):
+    pdf.set_font("Arial", "B", 14)
+    pdf.set_x(pdf.l_margin)
+    pdf.multi_cell(0, 8, f"Question: {text}")
+    pdf.ln(1)
+
+
+def add_answer(pdf, text):
+    pdf.set_x(pdf.l_margin)
+    pdf.set_font("Arial", "", 12)
+    pdf.multi_cell(0, 8, text)
+
+
+def add_table(pdf, data):
+    if not data:
+        return
+
+    headers = list(data[0].keys())
+    col_width = (pdf.w - 2 * pdf.l_margin) / len(headers)
+    
+    pdf.set_font("Arial", "B", 12)
+    pdf.set_text_color(0, 0, 255)
+    for header in headers:
+        pdf.cell(col_width, 8, str(header), border=1)
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln()
+
+    pdf.set_font("Arial", "", 12)
+    for row in data:
+        for header in headers:
+            value=row.get(header,"")
+            if(isinstance(value,float)):
+                value=round(value,2)
+                
+            text=str(value)
+            if len(text)>25:
+                text=text[:20]+"..."
+            pdf.cell(col_width, 8, str(text), border=1)
+        pdf.ln()
+
+    pdf.ln(3)
+
+
+def add_graph(pdf, graph_path):
+    if graph_path.is_file():
+        # Prevent cutting graph across pages
+        if pdf.get_y() + 80 > pdf.page_break_trigger:
+            pdf.add_page()
+
+        pdf.image(str(graph_path),w=170)
+        pdf.ln(5)
+
 
 def read_json(run_id):
-    with open(f"outputs/json/results_{run_id}.json",'r',encoding='utf-8') as file:
-        output_data=json.load(file)
-        return output_data
-    
+    with open(f"outputs/json/results_{run_id}.json", 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+
 def create_report(run_id):
-    pdf=PDF()
-    pdf.set_top_margin(30)
+    pdf = FPDF()
+    pdf.set_top_margin(20)
     pdf.set_auto_page_break(auto=True, margin=15)
+
     try:
-        output_data=read_json(run_id)
+        output_data = read_json(run_id)
         pdf.add_page()
-        pdf.set_line_width(0.2)
+        #adding title
+        pdf.set_font("Arial", "BU", 22)
+        pdf.set_text_color(101, 67, 33)
+        pdf.ln(5)
+        pdf.set_x(pdf.l_margin)
+        pdf.multi_cell(0, 10, "Analysis Report", align='C')
+        pdf.set_text_color(0, 0, 0)
+        pdf.ln(3)
         
-        for key,val in output_data.items():
-            if key=="file_data":
-                pdf.set_font("Arial",size=18)
-                pdf.set_x(pdf.l_margin)
-                pdf.multi_cell(0,10,"Meta-Data of File",align='C')
-                pdf.set_font("Arial",size=16)
-                for metric,answer in val.items():
-                    pdf.set_x(pdf.l_margin)
-                    pdf.multi_cell(0,10,txt=f"{metric} : {answer}")
-                pdf.ln(10)
-            
-            elif key=="file_info":
-                pdf.set_font("Arial",size=18)
-                pdf.set_x(pdf.l_margin)
-                pdf.multi_cell(0,10,"Information of File",align='C')
-                pdf.set_font("Arial",size=14)
-                for metric,answer in val.items():
-                    pdf.set_x(pdf.l_margin)
-                    pdf.multi_cell(0,10,txt=f"{metric} : {answer}")
-                pdf.ln(10)
-                    
-            elif key=="analysis_result":
-                pdf.set_font("Arial",size=18)
-                pdf.set_x(pdf.l_margin)
-                pdf.multi_cell(0,10,"Result after AI Analysis",align='C')
-                pdf.set_font("Arial",size=12)
-                for question,answer in val.items():
-                    pdf.set_x(pdf.l_margin)
-                    
-                    if isinstance(answer,(int,float,str)):
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0,10,txt=f"Question : {question}")
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0,10,txt=f"Answer : {answer}")
-                        pdf.ln(5)
-                    elif isinstance(answer,dict):
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0,10,txt=f"Question : {question}")
-                        for q,a in answer.items():
-                            pdf.set_x(pdf.l_margin)
-                            pdf.multi_cell(0,10,txt=f"{q}: {a}")
-                        pdf.ln(5)
-                    elif isinstance(answer, list) and all(isinstance(elem, dict) for elem in answer):
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0, 10, f"Question : {question}")
-                        for result in answer:
-                            line = ", ".join([f"{k}: {v}" for k, v in result.items()])
-                            pdf.set_x(pdf.l_margin)
-                            pdf.multi_cell(0,10,txt=f"{line}")
-                        pdf.ln(5)
-                    else:
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0, 10, f"Question : {question}")
-                        for value in answer:
-                            pdf.set_x(pdf.l_margin)
-                            pdf.multi_cell(0,10,txt=f"{value} , ")
-                        pdf.ln(5)
-                    
-                    #graph insertion
-                    slug=visualise.get_slug(question)
-                    graph_path = Path(f"outputs/graphs/{run_id}_{slug}.png")
-                    if graph_path.is_file():
-                        if pdf.get_y() > 200:
-                            pdf.add_page()
-                        
-                        pdf.image(str(graph_path), w=150)
-                        pdf.ln(5)
-                    
-            elif key=="discarded_queries":
-                if val:
-                    pdf.set_font("Arial",size=18)
-                    pdf.set_x(pdf.l_margin)
-                    pdf.multi_cell(0,10,"Discarded AI Analysis",align='C')
-                    pdf.set_font("Arial",10)
-                    for question,answer in val.items():
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0, 10, f"{question}")
-                        query = answer["query"]
-                        reason = answer["reason"]
-                        pdf.set_x(pdf.l_margin)
-                        pdf.multi_cell(0, 10, f"{query}:{reason}")
-                pdf.ln(10)
+
+        for key, val in output_data.items():
+            if key == "file_data":
+                add_section(pdf, "Meta-Data of File")
                 
+                pdf.set_font("Arial", "", 12)
+                for metric, answer in val.items():
+                    pdf.set_x(pdf.l_margin)
+                    pdf.multi_cell(0, 8, f"{metric} : {answer}")
+                pdf.ln(5)
+
+            elif key == "file_info":
+                add_section(pdf, "Information of File")
+
+                pdf.set_font("Arial", "", 12)
+                for metric, answer in val.items():
+                    pdf.set_x(pdf.l_margin)
+                    pdf.multi_cell(0, 8, f"{metric} : {answer}")
+                pdf.ln(5)
+
+            elif key == "analysis_result":
+                add_section(pdf, "Result after AI Analysis")
+
+                for question, answer in val.items():
+
+                    add_question(pdf, question)
+                    if isinstance(answer, (int, float, str)):
+                        add_answer(pdf, f"Answer: {answer}")
+
+                    elif isinstance(answer, dict):
+                        for k, v in answer.items():
+                            add_answer(pdf, f"{k}: {v}")
+
+                    elif isinstance(answer, list) and answer and all(isinstance(elem, dict) for elem in answer):
+                        add_table(pdf, answer)
+
+                    else:
+                        for value in answer:
+                            add_answer(pdf, str(value))
+
+                    # Graph insertion
+                    slug = visualise.get_slug(question)
+                    graph_path = Path(f"outputs/graphs/{run_id}_{slug}.png")
+                    add_graph(pdf, graph_path)
+
+                    pdf.ln(5)  
+
+            elif key == "discarded_queries":
+                if val:
+                    add_section(pdf, "Discarded AI Analysis")
+
+                    for question, answer in val.items():
+                        add_question(pdf, question)
+
+                        query = answer.get("query", "")
+                        reason = answer.get("reason", "")
+
+                        add_answer(pdf, f"Query: {query}")
+                        add_answer(pdf, f"Reason: {reason}")
+
+                    pdf.ln(5)
+
         file_path = Path(f"outputs/reports/analysis_report_{run_id}.pdf")
         file_path.parent.mkdir(parents=True, exist_ok=True)
         pdf.output(str(file_path))
         logger.info("Report generated successfully")
+
     except Exception as e:
         logger.error(f"Report generation failed : {e}")
-            
