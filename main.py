@@ -25,10 +25,9 @@ logging.basicConfig(
 logger=logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-def run_pipeline(path):
+def run_pipeline(path,trigger="Manual"):
     
     start_time=datetime.now()
-    trigger="Manual"
     engine=None
     run_id=None
     file_name=None
@@ -66,13 +65,8 @@ def run_pipeline(path):
         status="Success"
             
         run_id = load.insert_pipeline_runs(start_time,file_name,file_size,duration,status,trigger,engine)
-        error=None
-        load.insert_validate_result(run_id,total_rows,missing_values,duplicate_rows_dropped,error,engine)
-        
-        visualise.map_graph_types(run_id,analysis_result)
-        
-        insertion_date=datetime.today()
         file_size=round((file_size/1024/1024),2)
+        insertion_date=datetime.today()
         file_data={"file_name":file_name,"file_size":file_size,"file_inserted":insertion_date}
         file_info={"total_rows":total_rows,"total_columns":cleaned_data.shape[1],"missing_values":missing_values,"duplicate_rows_dropped":duplicate_rows_dropped}
         output_data={"file_data":file_data,"file_info":file_info,"analysis_result":analysis_result,"discarded_queries":discarded_queries}
@@ -80,8 +74,22 @@ def run_pipeline(path):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path,"w",encoding='utf-8') as f:
             json.dump(output_data,f,default=str,indent=4)
+        
+        try:
+            error=None
+            load.insert_validate_result(run_id,total_rows,missing_values,duplicate_rows_dropped,error,engine)
+        except Exception as e:
+            logger.warning(f"Failed to insert validated result in Database : {e}")
+        
+        try:
+            visualise.map_graph_types(run_id,analysis_result)
+        except Exception as e:
+            logger.warning(f"Failed to generate charts : {e}")
             
-        report.create_report(run_id)
+        try:
+            report.create_report(run_id)
+        except Exception as e:
+            logger.warning(f"Failed to generate PDF report : {e}")
         
         logger.info("Pipeline runs Successfully")
         return run_id , None
