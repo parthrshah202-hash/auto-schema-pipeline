@@ -11,11 +11,8 @@ logger = logging.getLogger(__name__)
 def read_json(run_id):
     with open(f"outputs/json/results_{run_id}.json", 'r', encoding='utf-8') as file:
         return json.load(file)
-
-st.set_page_config(page_title="📊 Auto Schema Pipeline",layout="wide")
-
-if 'run_id' not in st.session_state:
-    uploaded_file=st.file_uploader(label="Upload a CSV file",type=".csv")
+    
+def show_landing_page():
     #Project info
     st.title("📊 Auto Schema Pipeline")
     st.header("Drop any CSV. The pipeline figures out the rest.")
@@ -53,6 +50,14 @@ if 'run_id' not in st.session_state:
             
     st.info("Made by PARTH SHAH to explore Data Engineering")
     
+
+st.set_page_config(page_title="📊 Auto Schema Pipeline",layout="wide")
+
+if 'run_id' not in st.session_state:
+    uploaded_file=st.file_uploader(label="Upload a CSV file",type=".csv")
+    #Project info
+    show_landing_page()
+    
     if uploaded_file:
         base_name=Path(uploaded_file.name).stem
         time=datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -70,6 +75,7 @@ if 'run_id' not in st.session_state:
             st.session_state['run_id'] = run_id
             output_data = read_json(run_id)
             st.session_state['output_data']=output_data
+            st.session_state['uploaded_filename'] = uploaded_file.name
             st.success("Pipeline run successfull")
         else:
             st.error(f"Pipeline failed to run! Error : {error_message}")
@@ -90,9 +96,49 @@ else:
             st.warning(f"PDF report not available : {e}")
                 
     if page=="Home":
-        st.write("In progress")
+        uploaded_file=st.file_uploader(label="Upload a CSV file",type=".csv")
+        
+        if uploaded_file and uploaded_file.name != st.session_state['uploaded_filename']:
+            del st.session_state['run_id']
+            del st.session_state['output_data']
+            del st.session_state['uploaded_filename']
+            st.rerun()
+        else:
+            #Project info
+           show_landing_page()
+        
     elif page=="Overview":
-        st.write("In progress")
+        #file_data
+        file_name=st.session_state.output_data["file_data"]["file_name"]
+        file_size=st.session_state.output_data["file_data"]["file_size"]
+        file_inserted_time=st.session_state.output_data["file_data"]["file_inserted"]
+        
+        col1,col2,col3 = st.columns(3)
+        
+        st.subheader("📁 File Details")
+        st.write("")
+        col1.metric("File Name",file_name)
+        col2.metric("File Size",f"{file_size} MB")
+        col3.metric("Time Inserted",file_inserted_time)
+        
+        st.divider()
+        
+        #file_info
+        st.subheader("📊 Pipeline Summary")
+        st.write("")
+        total_rows=st.session_state.output_data["file_info"]["total_rows"]
+        total_columns=st.session_state.output_data["file_info"]["total_columns"]
+        missing_values=st.session_state.output_data["file_info"]["missing_values"]
+        duplicate_rows_dropped=st.session_state.output_data["file_info"]["duplicate_rows_dropped"]
+        
+        a,b=st.columns(2)
+        c,d=st.columns(2)
+        
+        a.metric("Total Rows",total_rows,border=True)
+        b.metric("Total Columns",total_columns,border=True)
+        c.metric("Total Missing Values",missing_values,border=True)
+        d.metric("Total Duplicates Dropped",duplicate_rows_dropped,border=True)
+        
     elif page=="Analysis Result":
         st.write("In progress")
     else:
