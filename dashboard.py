@@ -3,6 +3,7 @@ import logging
 import json
 from datetime import datetime
 from pathlib import Path
+from src.visualise import get_slug
 import main
 
 logger = logging.getLogger(__name__)
@@ -77,6 +78,7 @@ if 'run_id' not in st.session_state:
             st.session_state['output_data']=output_data
             st.session_state['uploaded_filename'] = uploaded_file.name
             st.success("Pipeline run successfull")
+            st.rerun()
         else:
             st.error(f"Pipeline failed to run! Error : {error_message}")
            
@@ -140,7 +142,36 @@ else:
         d.metric("Total Duplicates Dropped",duplicate_rows_dropped,border=True)
         
     elif page=="Analysis Result":
-        st.write("In progress")
+        st.subheader("Analysis Results")
+        analysis_result=st.session_state.output_data["analysis_result"]
+        #This analysis result is a dict where key = question and value = answer
+        if analysis_result:
+            for question,answer in analysis_result.items():
+                st.markdown(f"**Q. {question}**")
+                st.dataframe(answer)
+                st.write("")
+                slug=get_slug(question)
+                chart_path=Path(f"outputs/graphs/{st.session_state['run_id']}_{slug}.png")
+                if chart_path.exists():
+                    st.image(chart_path,)
+                    st.write("")
+                st.divider()
+        else:
+            st.warning("No analysis was obtained")
+            
     else:
-        st.write("In progress")
+        st.subheader("Discarded Queries")
+        discarded_queries=st.session_state.output_data["discarded_queries"]
+        if discarded_queries:
+            for question,value in discarded_queries.items():
+                st.markdown(f"**Q. {question}**")
+                col1,col2=st.columns(2)
+                with col1:
+                    st.code(value['query'],language='sql')
+                with col2:
+                    st.write(value['reason'])
+                st.divider()
+        else:
+            st.info("All queries returned by AI were executed")
+                
         
