@@ -26,7 +26,7 @@ def load_data(filepath):
         return df, file_name, file_size
     
     except FileNotFoundError:
-        logger.error("Error 404 : File Not Found !")
-        exit(1)
+        logger.error(f"Error 404 : File Not Found at {filepath}!")
+        raise
         
     

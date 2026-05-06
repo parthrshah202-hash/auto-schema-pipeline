@@ -6,9 +6,6 @@ import os
 
 from pathlib import Path
 load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
-gemini_api_key=os.getenv("Gemini_API_Key")
-
-client = genai.Client(api_key=gemini_api_key)
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +25,8 @@ def build_prompt(df,file_name,table_name,schema_dict,total_rows,duplicate_rows_d
         
 def get_analysis(prompt):
     try:
+        gemini_api_key=os.getenv("Gemini_API_Key")
+        client = genai.Client(api_key=gemini_api_key)
         response=client.models.generate_content(
             model="gemini-flash-latest", 
             contents=prompt
@@ -37,7 +36,7 @@ def get_analysis(prompt):
         return analysis_dict
     except Exception as e:
         logger.error(f"Failed to generate AI analysis suggestions : {e}")
-        exit(1)
+        raise
         
 
 

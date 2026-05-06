@@ -36,7 +36,12 @@ def run_pipeline(path,trigger="Manual"):
         engine=load.get_connection()
         load.set_up_tables(engine)
         raw_data,file_name,file_size = ingestion.load_data(path)
+        if raw_data.empty:
+            raise ValueError("Raw DataFrame is empty, cannot transform dataset.")
         cleaned_data,total_rows,missing_values,duplicate_rows_dropped = transform.clean_data(raw_data)
+        
+        if cleaned_data.empty:
+            raise ValueError("Cleaned DataFrame is empty, cannot detect schema.")
         
         schema_dict=schema_detector.detect_schema(cleaned_data)
         

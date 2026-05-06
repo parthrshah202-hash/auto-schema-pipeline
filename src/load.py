@@ -21,7 +21,7 @@ def get_connection():
             return engine
     except Exception as e:
         logger.error(f"Database setup failed: {e}")
-        exit(1)
+        raise
         
 def set_up_tables(engine):
     with engine.connect() as connection:
@@ -40,8 +40,8 @@ def set_up_tables(engine):
             logger.info("pipeline_runs Table created successfully")
             connection.commit()
         except Exception as e:
-            logger.error("Failed to setup pipeline_runs Table")
-            exit(1)
+            logger.error(f"Failed to setup pipeline_runs Table : {e}")
+            raise
         
         try:
             connection.execute(text("""
@@ -57,8 +57,8 @@ def set_up_tables(engine):
             logger.info("validate_result Table created successfully")
             connection.commit()
         except Exception as e:
-            logger.error("Failed to setup validate_result Table")
-            exit(1)
+            logger.error(f"Failed to setup validate_result Table : {e}")
+            raise
     
     
 def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
@@ -86,7 +86,7 @@ def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
             return run_id
         except Exception as e:
             logger.error(f"Row failed to be added in pipeline_runs : {e}")
-            exit(1)
+            raise
         
 def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,error_message,engine):
     with engine.connect() as connection:
@@ -109,7 +109,7 @@ def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,
             logger.info("Row added in validate_result successfully")
         except Exception as e:
             logger.error(f"Row failed to be added in validate_result : {e}")
-            exit(1)
+            raise
         
 def create_table(table_name,schema_dict,engine):
     with engine.connect() as connection:
@@ -121,6 +121,7 @@ def create_table(table_name,schema_dict,engine):
             logger.info(f"{table_name} created successfully")
         except Exception as e:
             logger.error(f"{table_name} creation failed : {e}")
+            raise
             
 def insert_data(table_name,df,engine):
     with engine.connect() as connection:
@@ -129,3 +130,4 @@ def insert_data(table_name,df,engine):
             logger.info(f"Data added in {table_name} successfully")
         except Exception as e:
             logger.error(f"Addition of data to {table_name} failed : {e}")
+            raise
