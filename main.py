@@ -82,7 +82,7 @@ def run_pipeline(path,trigger="Manual"):
         
         try:
             error=None
-            load.insert_validate_result(run_id,total_rows,missing_values,duplicate_rows_dropped,error,engine)
+            load.insert_validate_result(run_id,total_rows,duplicate_rows_dropped,missing_values,error,engine)
         except Exception as e:
             logger.warning(f"Failed to insert validated result in Database : {e}")
         

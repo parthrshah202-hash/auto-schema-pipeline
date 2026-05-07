@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 def load_data(filepath):
     """
-    Loads a CSV file and returns it as a pandas DataFrame along with filename and filesize
+    Load a CSV file and return it as a pandas DataFrame along with filename and filesize
     
     Reads data from the given file path for further processing.
     
@@ -16,10 +16,16 @@ def load_data(filepath):
         filepath (str): Path to the CSV file.
     
     Returns:
-        pandas.DataFrame: Loaded dataset.
+        tuple: A tuple containing:
+            - pandas.DataFrame: The loaded dataset.
+            - str: The extracted filename without the extension.
+            - int: The size of the file in bytes.
+    
+    Raises:
+        FileNotFoundError: If file is not present at filepath
     """
     try:
-        df=pd.read_csv(filepath,skip_blank_lines=True)
+        df=pd.read_csv(filepath)
         logger.info(f"{filepath} file has been read successfully")
         file_name=Path(filepath).stem
         file_size=os.path.getsize(filepath)

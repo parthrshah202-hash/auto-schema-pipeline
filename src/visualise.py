@@ -97,12 +97,10 @@ def map_graph_types(run_id,analysis_result):
     for question in analysis_result.keys():
         answer=analysis_result[question]
         if answer :
-            if type(answer)==dict:
-                graph="None"
+            if isinstance(answer,dict):
+                graph=None
                 for key,value in answer.items():
-                    key_type=type(key)
-                    value_type=type(value)
-                    if key_type==str and value_type==int:
+                    if isinstance(key,str) and isinstance(value,int):
                         if len(answer) <= 7 :
                             graph="pie_chart" 
                         else:
@@ -112,41 +110,38 @@ def map_graph_types(run_id,analysis_result):
                 elif graph=="pie_chart":
                     create_pie_graph(run_id,question,answer)
                 
-            if type(answer)==list:
+            if isinstance(answer,list):
                 if all(isinstance(num,(int,float)) for num in answer):
                     create_histogram(run_id,question,answer) 
-                
-                
-                graph="None"
-                item=answer[0]
-                if (isinstance(item,dict)):
-                    for key in item.keys():
-                        if isinstance(key,str) and ("date" in key.lower() or "time" in key.lower()):
-                            graph="line_chart"
-                                    
-                if graph=="line_chart":
-                    create_line_chart(run_id,question,answer)
                 else:
-                    # it's a list of dicts with categorical string keys - bar chart
-                    temp={}
-                    for dictionary in answer:
-                        values = list(dictionary.values())
-                        label = values[0]
-                        number = values[1]
-                        temp[label]=number
-                    
-                    for key,value in temp.items():
-                        key_type=type(key)
-                        value_type=type(value)
-                        if key_type==str and (value_type==int or value_type==float):
-                            if len(answer) <= 7 :
-                                graph="pie_chart" 
-                            else:
-                                graph="bar_chart"  
-                                          
-                if graph=="bar_chart":
-                    create_bar_chart(run_id,question,temp)
-                elif graph=="pie_chart":
-                    create_pie_graph(run_id,question,temp)
+                    graph=None
+                    item=answer[0]
+                    if (isinstance(item,dict)):
+                        for key in item.keys():
+                            if isinstance(key,str) and ("date" in key.lower() or "time" in key.lower()):
+                                graph="line_chart"
+                                        
+                    if graph=="line_chart":
+                        create_line_chart(run_id,question,answer)
+                    else:
+                        # it's a list of dicts with categorical string keys - bar chart/pie chart
+                        temp={}
+                        for dictionary in answer:
+                            values = list(dictionary.values())
+                            label = values[0]
+                            number = values[1]
+                            temp[label]=number
+                        
+                        for key,value in temp.items():
+                            if isinstance(key,str) and (isinstance(value,int) or isinstance(value,float)):
+                                if len(answer) <= 7 :
+                                    graph="pie_chart" 
+                                else:
+                                    graph="bar_chart"  
+                                            
+                    if graph=="bar_chart":
+                        create_bar_chart(run_id,question,temp)
+                    elif graph=="pie_chart":
+                        create_pie_graph(run_id,question,temp)
         else:
             logger.error("Answer list is empty")

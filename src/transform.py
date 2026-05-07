@@ -5,16 +5,24 @@ logger = logging.getLogger(__name__)
 
 def clean_data(df):
     """
-    Cleans the dataset by handling missing and invalid values.
+    Clean the dataset by handling missing and invalid values.
     
-    Removes duplicates and filters out unrealistic or incomplete records.
+    Remove duplicates and filter out unrealistic or incomplete records.
     
     Args:
         df (pandas.DataFrame): Raw dataset to clean.
     
     Returns:
-        pandas.DataFrame: Cleaned dataset ready for analysis.
+        tuple: A collection of processing results:
+            - pd.DataFrame: The cleaned dataset.
+            - int: The total number of rows in the original dataset.
+            - int: The count of missing values handled.
+            - int: The number of duplicate rows removed.
+        
+    Raises:
+        Nothing
     """
+    df = df.copy()
     total_rows=len(df)
     
     #Filling the missing data
@@ -33,7 +41,6 @@ def clean_data(df):
     duplicate_rows_dropped=df.duplicated().sum()
     df=df.drop_duplicates()
     logger.info("Dropped Duplicates")
-    
     
     
     logger.info("Data Cleaned")

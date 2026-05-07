@@ -13,6 +13,16 @@ password = os.getenv("DB_PASSWORD")
 logger = logging.getLogger(__name__)
 
 def get_connection():
+    """
+    Establish a connection factory for the PostgreSQL database.
+
+    Returns:
+        sqlalchemy.engine.Engine: The engine instance used to interact with the database.
+
+    Raises:
+        Exception: If the database URL is malformed or the connection 
+            cannot be established.
+    """
     try:
         db_url = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
         engine=create_engine(db_url)
@@ -24,6 +34,19 @@ def get_connection():
         raise
         
 def set_up_tables(engine):
+    """
+    Initialize the database schema for pipeline tracking.
+    
+    Creates the 'pipeline_runs' and 'validate_result' tables if they do 
+    not already exist.
+    
+    Args:
+        engine (Engine): The SQLAlchemy engine instance used to establish a database connection.
+            
+    Raises:
+        Exception: If the SQL execution fails due to permissions, 
+            connectivity issues, or syntax errors.
+    """
     with engine.connect() as connection:
         try:
             connection.execute(text("""
@@ -62,6 +85,25 @@ def set_up_tables(engine):
     
     
 def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
+    """
+    Insert a new entry in pipeline_runs table.
+    
+    Args:
+        stamp (datetime): The time when pipeline started
+        name (str): Name of the file uploaded
+        size (int): Size of the file uploaded
+        duration (int): Total duration of pipeline
+        status (str): If the execution was succesfull or not
+        trigger (str): If pipeline was triggered manually or automatically
+        engine (Engine): The SQLAlchemy engine instance used to establish a database connection.
+        
+    Returns:
+        run_id (int): The unique id generated for this pipeline run
+            
+    Raises:
+        Exception: If the SQL execution fails due to permissions, 
+            connectivity issues, or syntax errors.
+    """
     with engine.connect() as connection:
         try:
             query = text("""
@@ -82,13 +124,27 @@ def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
             run_id=result.scalar()
             connection.commit()
             
-            logger.info("Row added in pipeline_runs successfully")
+            logger.info(f"Row added in pipeline_runs successfully with run_id : {run_id}")
             return run_id
         except Exception as e:
             logger.error(f"Row failed to be added in pipeline_runs : {e}")
             raise
         
 def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,error_message,engine):
+    """
+    Insert a new entry in validate_result table.
+    
+    Args:
+        run_id (int): The unique id generated for this pipeline run
+        total_rows (int): Total number of rows in dataset
+        duplicates_dropped (int): Total number of duplicate values(dropped) in dataset
+        values_replaced (int): Total number of values replaced in dataset
+        error_message (str): A description of any issues encountered, or 'None' if successful.
+        engine (Engine): The SQLAlchemy engine instance used to establish a database connection. 
+            
+    Raises:
+        Exception: If the database insertion fails due to constraint violations (like a non-existent run_id) or connectivity issues.
+    """
     with engine.connect() as connection:
         try:
             query = text("""
@@ -112,6 +168,17 @@ def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,
             raise
         
 def create_table(table_name,schema_dict,engine):
+    """Create new database table according to dynamic schema
+
+    Args:
+        table_name (str): Name with which table is to be created in database
+        schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values), e.g., {'id': 'SERIAL PRIMARY KEY'}.
+        engine (Engine): The SQLAlchemy engine instance used to establish a database connection. 
+        
+    Raises:
+        Exception: If the SQL construction is malformed or the database connection fails during execution.
+
+    """
     with engine.connect() as connection:
         try:
             columns=[f"{col_name} {col_type}" for col_name,col_type in schema_dict.items()]
@@ -124,6 +191,16 @@ def create_table(table_name,schema_dict,engine):
             raise
             
 def insert_data(table_name,df,engine):
+    """Insertion of data in database table with name as table_name
+
+    Args:
+        table_name (str): Name with which table is to be created in database
+        df (DataFrame): The dataset containing the data to be inserted in database table with name as table_name
+        engine (Engine): The SQLAlchemy engine instance used to establish a database connection. 
+        
+    Raises:
+        Exception: If the insertion fails due to schema mismatches, connectivity issues, or database constraint violations.
+    """
     with engine.connect() as connection:
         try:
             df.to_sql(name=table_name,con=engine,if_exists='append',index=False)
