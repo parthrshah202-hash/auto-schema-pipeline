@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_data(filepath):
-    """
-    Load a CSV file and return it as a pandas DataFrame along with filename and filesize
+    """Load a CSV file and return it as a pandas DataFrame along with filename and filesize
     
     Reads data from the given file path for further processing.
     

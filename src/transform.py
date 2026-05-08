@@ -4,8 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def clean_data(df):
-    """
-    Clean the dataset by handling missing and invalid values.
+    """Clean the dataset by handling missing and invalid values.
     
     Remove duplicates and filter out unrealistic or incomplete records.
     
@@ -18,9 +17,6 @@ def clean_data(df):
             - int: The total number of rows in the original dataset.
             - int: The count of missing values handled.
             - int: The number of duplicate rows removed.
-        
-    Raises:
-        Nothing
     """
     df = df.copy()
     total_rows=len(df)

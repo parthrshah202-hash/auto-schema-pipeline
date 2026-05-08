@@ -3,6 +3,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 def validate(analysis_dict,table_name,schema_dict):
+    """Check the correctness of SQL queries returned by AI
+
+    Args:
+        analysis_dict (dict): A dictionary where keys are Questions and values are the equivalent SQL Queries.
+        table_name (str): The identifier of the table in the database.
+        schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values)
+
+    Returns:
+        tuple: A collection of processing results:
+            - dict: A dictionary mapping question (keys) to the valid SQL query (value)
+            - dict: A dictionary mapping question (keys) to the discarded query and the reason for exculsion (value)
+    """
     valid_queries={}
     discarded_queries={}
     

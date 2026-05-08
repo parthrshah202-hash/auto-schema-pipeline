@@ -13,8 +13,7 @@ password = os.getenv("DB_PASSWORD")
 logger = logging.getLogger(__name__)
 
 def get_connection():
-    """
-    Establish a connection factory for the PostgreSQL database.
+    """Establish a connection factory for the PostgreSQL database.
 
     Returns:
         sqlalchemy.engine.Engine: The engine instance used to interact with the database.
@@ -34,8 +33,7 @@ def get_connection():
         raise
         
 def set_up_tables(engine):
-    """
-    Initialize the database schema for pipeline tracking.
+    """Initialize the database schema for pipeline tracking.
     
     Creates the 'pipeline_runs' and 'validate_result' tables if they do 
     not already exist.
@@ -85,8 +83,7 @@ def set_up_tables(engine):
     
     
 def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
-    """
-    Insert a new entry in pipeline_runs table.
+    """Insert a new entry in pipeline_runs table.
     
     Args:
         stamp (datetime): The time when pipeline started
@@ -131,8 +128,7 @@ def insert_pipeline_runs(stamp,name,size,duration,status,trigger,engine):
             raise
         
 def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,error_message,engine):
-    """
-    Insert a new entry in validate_result table.
+    """Insert a new entry in validate_result table.
     
     Args:
         run_id (int): The unique id generated for this pipeline run

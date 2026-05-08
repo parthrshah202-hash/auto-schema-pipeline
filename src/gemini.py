@@ -10,6 +10,21 @@ load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 logger = logging.getLogger(__name__)
 
 def build_prompt(df,file_name,table_name,schema_dict,total_rows,duplicate_rows_dropped):
+    """Create the unique prompt according to the input dataset
+    
+    Generates a structured prompt containing metadata, schema information, and a data preview to guide Gemini in generating SQL-based insights.
+    
+    Args:
+        df(DataFrame): The input dataset
+        file_name(str): Name of file entered
+        table_name(str): Name of table to be reffered to
+        schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values)
+        total_rows(int): Total number of rows in dataset
+        duplicates_rows_dropped (int): Total number of duplicate values(dropped) in dataset
+        
+    Returns:
+        str: A formatted prompt string configured for a JSON-only AI response.
+    """
     
     prompt=f"""Analyse this from the cleaned dataset named {file_name} and tablename is {table_name}.It has {total_rows} total rows.
     {duplicate_rows_dropped} total rows were dropped as they were duplicate.
@@ -24,6 +39,17 @@ def build_prompt(df,file_name,table_name,schema_dict,total_rows,duplicate_rows_d
     
         
 def get_analysis(prompt):
+    """Request and parse an AI-driven SQL analysis from Gemini.
+    
+    Args:
+        prompt(str): A formatted prompt string configured for a JSON-only AI response.
+        
+    Returns:
+        dict: A dictionary where keys are Questions and values are the equivalent SQL Queries.
+        
+    Raises:
+        Exception: If the API call fails, or if the AI response cannot be parsed into a valid dictionary.
+    """
     try:
         gemini_api_key=os.getenv("Gemini_API_Key")
         client = genai.Client(api_key=gemini_api_key)
