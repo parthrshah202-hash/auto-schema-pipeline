@@ -7,6 +7,16 @@ plt.style.use('seaborn-v0_8')
 logger = logging.getLogger(__name__)
 
 def get_slug(question):
+    """Sanitize a question string into a filesystem-safe slug
+    
+    Converts the question to lowercase and replaces spaces with underscores, while stripping characters that are reserved or illegal in filenames
+
+    Args:
+        question(str): The natural language question to be converted.
+
+    Returns:
+        str: A sanitized, lowercase string suitable for use as a filename or URL component.
+    """
     slug=question.lower().replace(" ","_")
     for char in ["?", "/", "\\", ":", "*", "<", ">", "|", "\""]:
         slug=slug.replace(char,"")
@@ -14,6 +24,12 @@ def get_slug(question):
     
 
 def save_plot(run_id,question):
+    """Save the current matplotlib figure to the local filesystem and close the matplotlib figure.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        question (str): The natural language question to be used in plotname.
+    """
     slug=get_slug(question)
     plot_name=str(run_id)+"_"+slug
     
@@ -24,6 +40,16 @@ def save_plot(run_id,question):
     
 
 def create_bar_chart(run_id,question,answer):
+    """Generate and save a bar chart high-cardinality categorical data.
+    
+    Visualizes a dictionary of results where keys represent categories and values represent numerical counts.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        question (str): The natural language question to be used in plotname.
+        answer (dict): A dictionary mapping categorical labels (str) 
+            to numerical values (int/float).
+    """
     x_axis=[]
     y_axis=[]
     for x_vals,y_vals in answer.items():
@@ -40,6 +66,15 @@ def create_bar_chart(run_id,question,answer):
     save_plot(run_id,question)
     
 def create_pie_graph(run_id,question,answer):
+    """Generate and save a pie chart for low-cardinality categorical data.
+    
+    Visualizes a dictionary of results where keys represent categories and values represent numerical counts.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        question (str): The natural language question to be used in plotname.
+        answer (dict): A dictionary mapping categorical labels (str) to numerical values (int/float).
+    """
     slices=[]
     labels=[]
     for category,value in answer.items():
@@ -52,10 +87,19 @@ def create_pie_graph(run_id,question,answer):
     save_plot(run_id,question)
     
 def create_histogram(run_id,question,answer):
+    """Generate and save a histogram for list of numerical data.
+    
+    Visualize a frequency distribution of the provided numerical list using logarithmic scaling and identifies the central tendency by overlaying a median line.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        question (str): The natural language question to be used in plotname.
+        answer (list): A list of numerical values (int or float) to be plotted
+    """
     plt.hist(answer,bins=20,edgecolor='black',log=True)
     plt.title(question)
     plt.xlabel("Category")
-    plt.ylabel("Values")
+    plt.ylabel("Frequency")
     
     median_value=statistics.median(answer)
     plt.axvline(median_value, color='#fc4f30', label='Median', linewidth=3)
@@ -66,6 +110,15 @@ def create_histogram(run_id,question,answer):
     save_plot(run_id,question)
     
 def create_line_chart(run_id,question,answer):
+    """Generate and save a line chart to visualize trends over time.
+    
+    Automatically identifies temporal and numerical keys within a list of  dictionaries to plot sequential data.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        question (str): The natural language question to be used in plotname.
+        answer (list[dict]): A list of dictionaries containing the records to be plotted.
+    """
     item=answer[0]
     x_key=None
     y_key=None
@@ -94,6 +147,14 @@ def create_line_chart(run_id,question,answer):
     
 
 def map_graph_types(run_id,analysis_result):
+    """Orchestrate data visualization by mapping query results to graph types.
+    
+    Analyzes the structure and data types of the execution results to automatically trigger the appropriate plotting function (Like - Pie, Bar, Line, or Histogram) based on cardinality and value types.
+
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution.
+        analysis_result (dict): Mapping of questions to their respective database results (can be lists of records or metric dictionaries).
+    """
     for question in analysis_result.keys():
         answer=analysis_result[question]
         if answer :

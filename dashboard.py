@@ -10,10 +10,22 @@ logger = logging.getLogger(__name__)
 
 @st.cache_data
 def read_json(run_id):
+    """Load and deserialize the JSON results for a specific pipeline execution.
+    
+    Args:
+        run_id (int): The unique identifier for the current pipeline execution, used to locate specific JSON file
+
+    Returns:
+        dict: The entire JSON file is transformed into a dictionary
+    """
     with open(f"outputs/json/results_{run_id}.json", 'r', encoding='utf-8') as file:
         return json.load(file)
     
 def show_landing_page():
+    """"Render the landing page content for the dashboard
+    
+    It loads the landing page of dashboard showing project information, tech-stack used and who built it.
+    """
     #Project info
     st.title("📊 Auto Schema Pipeline")
     st.header("Drop any CSV. The pipeline figures out the rest.")
@@ -172,6 +184,5 @@ else:
                     st.write(value['reason'])
                 st.divider()
         else:
-            st.info("All queries returned by AI were executed")
-                
+            st.info("All queries returned by AI were executed")      
         
