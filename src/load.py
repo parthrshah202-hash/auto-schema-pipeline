@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine,text,inspect
 from datetime import datetime
+import time
 import logging
 import os
 
@@ -15,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 def get_connection():
     """Establish a connection factory for the PostgreSQL database.
+    
+    Try to establish a connection factory by reading URL componenets from .env file.Try to connect 3 times and then if failed, log and raise the error
 
     Returns:
         sqlalchemy.engine.Engine: The engine instance used to interact with the database.
@@ -23,15 +26,21 @@ def get_connection():
         Exception: If the database URL is malformed or the connection 
             cannot be established.
     """
-    try:
-        db_url = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
-        engine=create_engine(db_url)
-        with engine.connect() as connection:
-            logger.info("Connected to Database successfully")
-            return engine
-    except Exception as e:
-        logger.error(f"Database setup failed: {e}")
-        raise
+    max_retries=3
+    for attempt in range (max_retries):
+        try:
+            db_url = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
+            engine=create_engine(db_url)
+            with engine.connect() as connection:
+                logger.info("Connected to Database successfully")
+                return engine
+        except Exception as e:
+            logger.error(f"Attempt {attempt+1} to setup Database failed: {e}")
+            if attempt < max_retries-1:
+                time.sleep(5)
+            else:
+                logger.error("All attempts to setup Database failed")
+                raise
         
 def set_up_tables(engine):
     """Initialize the database schema for pipeline tracking.
