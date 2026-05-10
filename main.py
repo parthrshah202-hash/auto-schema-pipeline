@@ -71,7 +71,10 @@ def run_pipeline(path,trigger="Manual"):
         
         table_name=file_name
         
-        #Create table and insert data for the data inserted by user
+        #Check existance of table in database with same name
+        table_name=load.check_table_existance(table_name,engine)
+        
+        #Create table with correct name and insert data for the data inserted by user
         load.create_table(table_name,schema_dict,engine)
         load.insert_data(table_name,cleaned_data,engine)
         

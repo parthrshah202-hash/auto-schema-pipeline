@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
-from sqlalchemy import create_engine,text
+from sqlalchemy import create_engine,text,inspect
+from datetime import datetime
 import logging
 import os
 
@@ -163,12 +164,34 @@ def insert_validate_result(run_id,total_rows,duplicates_dropped,values_replaced,
             logger.error(f"Row failed to be added in validate_result : {e}")
             raise
         
+def check_table_existance(table_name,engine):
+    """Check if table with a name exists in database and modifies it.
+    
+    To avoid data being appeneded in same table, we check if it already exists in database. If yes, we modify the table_name. Also, we truncate the tabel name just in case it exceeds Postgre SQL table name limit (63)
+
+    Args:
+        table_name (str): Name with which we have to check if a table exists in database
+        engine (Engine): he SQLAlchemy engine instance used to establish a database connection.
+        
+    Returns:
+        str: Name with which table is to be created in database
+    """
+    inspector=inspect(engine)
+    
+    if(len(table_name)>47):
+        table_name=table_name[:45]
+    
+    if inspector.has_table(table_name):
+        table_name=table_name+str(datetime.now().strftime('%Y%m%d_%H%M%S'))
+        
+    return table_name
+        
 def create_table(table_name,schema_dict,engine):
     """Create new database table according to dynamic schema
 
     Args:
         table_name (str): Name with which table is to be created in database
-        schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values), e.g., {'id': 'SERIAL PRIMARY KEY'}.
+        schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values)
         engine (Engine): The SQLAlchemy engine instance used to establish a database connection. 
         
     Raises:
