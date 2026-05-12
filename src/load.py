@@ -236,3 +236,22 @@ def insert_data(table_name,df,engine):
         except Exception as e:
             logger.error(f"Addition of data to {table_name} failed : {e}")
             raise
+        
+
+def get_run_history(engine):
+    with engine.connect() as connection:
+        try:
+            query=text("""SELECT run_id,runtime_stamp,file_name,file_size,duration,status
+                       FROM pipeline_runs
+                       ORDER BY run_id DESC
+                       LIMIT 10
+                       """)
+            result=connection.execute(query)
+            pipeline_history=[dict(row) for row in result.mappings()]
+            logger.info("Successfully obtained the last 10 rows of pipeline_runs table")
+            return pipeline_history
+        except Exception as e:
+            logger.error(f"Extraction of last 10 rows of pipeline_runs table failed : {e}")
+            raise
+            
+    

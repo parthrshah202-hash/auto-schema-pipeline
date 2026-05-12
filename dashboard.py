@@ -1,10 +1,12 @@
 import streamlit as st
 import logging
 import json
+import pandas as pd
 from datetime import datetime
 from pathlib import Path
 from src.visualise import get_slug
 import main
+import load
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ def read_json(run_id):
 def show_landing_page():
     """"Render the landing page content for the dashboard
     
-    It loads the landing page of dashboard showing project information, tech-stack used and who built it.
+    It loads the landing page of dashboard showing project information, tech-stack used, pipeline run history and who built it.
     """
     #Project info
     st.title("📊 Auto Schema Pipeline")
@@ -58,7 +60,19 @@ def show_landing_page():
     with col5:
         st.markdown("### PDF")
         st.write("FPDF")
+        
+    st.subheader("Pipeline Run History")
+    engine=load.get_connection()
+    pipeline_history=load.get_run_history(engine)
+    pipeline_history_df=pd.DataFrame(pipeline_history)
+    pipeline_history_df['file_size']=pipeline_history_df['file_size']/1024/1024
+    pipeline_history_df=pipeline_history_df.rename(columns={'file_size':'file_size (MB)'})
+    st.dataframe(pipeline_history_df)
+    st.write("")
+    st.info("This indicates that Live DB is present")
+    st.divider()
                 
+    st.write("")
     st.info("👆 Upload a CSV file at the top to get started")
             
     st.info("Made by PARTH SHAH to explore Data Engineering")
