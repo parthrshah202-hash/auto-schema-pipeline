@@ -16,8 +16,8 @@ def build_prompt(df,file_name,table_name,schema_dict,total_rows,duplicate_rows_d
     
     Args:
         df(DataFrame): The input dataset
-        file_name(str): Name of file entered
-        table_name(str): Name of table to be reffered to
+        file_name(str): Name of source file
+        table_name(str): The identifier of the table in the database.
         schema_dict (dict): A dictionary mapping column names (keys) to SQL data types (values)
         total_rows(int): Total number of rows in dataset
         duplicates_rows_dropped (int): Total number of duplicate values(dropped) in dataset
@@ -51,7 +51,7 @@ def get_analysis(prompt):
         Exception: If the API call fails, or if the AI response cannot be parsed into a valid dictionary.
     """
     try:
-        gemini_api_key=os.getenv("Gemini_API_Key")
+        gemini_api_key=os.getenv("GEMINI_API_KEY")
         client = genai.Client(api_key=gemini_api_key)
         response=client.models.generate_content(
             model="gemini-flash-latest", 

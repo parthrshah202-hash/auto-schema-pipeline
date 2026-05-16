@@ -1,0 +1,14 @@
+# --- Core Data Engineering & Database ---
+pandas>=2.3.3
+SQLAlchemy>=2.0.48
+python-dotenv>=1.2.1
+
+# --- AI & LLM Orchestration ---
+google-genai>=1.73.1
+
+# --- Visualization & Reporting ---
+matplotlib>=3.10.7
+fpdf2>=2.8.7
+
+# --- Frontend Dashboard ---
+streamlit>=1.54.0

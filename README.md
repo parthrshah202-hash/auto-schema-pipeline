@@ -90,13 +90,85 @@ error is shown on the dashboard.
 | Reporting      | FPDF2                   |
 | Config         | python-dotenv           |
 
-## Folder Tree
+## Project Structure
 
-add image
+```
+auto-schema-pipeline/
+├── config/                  
+├── data/
+│   └── raw/                 
+├── logs/                    
+├── outputs/
+│   ├── graphs/              
+│   ├── json/                
+│   └── reports/             
+├── src/
+│   ├── ingestion.py         
+│   ├── schema_detector.py   
+│   ├── transform.py         
+│   ├── load.py              
+│   ├── gemini.py            
+│   ├── validate_query.py    
+│   ├── execute_query.py     
+│   └── visualise.py         
+├── tests/
+│   ├── test_schema_detector.py
+│   └── test_transform.py    
+├── .env.example             
+├── .gitignore               
+├── conftest.py              
+├── dashboard.py             
+├── main.py                  
+└── README.md                
+```
 
-## Local Setup and requirements
+## Local Setup
 
-para
+### Prerequisites
+- Python 3.10+
+- PostgreSQL installed and running locally
+
+### Setup
+
+1. Clone the repository
+```bash
+   git clone https://github.com/parth-hue/auto-schema-pipeline.git
+   cd auto-schema-pipeline
+```
+
+2. Create and activate a virtual environment
+```bash
+   python -m venv venv
+
+   # Windows
+   .\venv\Scripts\Activate.ps1
+
+   # Mac / Linux
+   source venv/bin/activate
+```
+
+3. Install dependencies
+```bash
+   pip install -r requirements.txt
+```
+
+4. Configure environment variables  
+   Copy `.env.example` to `.env` and fill in your values:   
+   DB_HOST=localhost   
+   DB_NAME=your_database_name   
+   DB_USER=your_postgres_user   
+   DB_PASSWORD=your_postgres_password   
+   GEMINI_API_KEY=your_key_here
+
+Get your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
+
+1. Create a PostgreSQL database with the name you used in `.env`
+
+### Run
+
+```bash
+streamlit run dashboard.py
+```
 
 ## Engineering challenges and Solutions
 
@@ -104,12 +176,32 @@ para
 
 ## Future Enhancements
 
-list
+1. **Multi-format ingestion** — Currently the pipeline only accepts CSV files. 
+   Extending ingestion to support `.xlsx`, `.json`, and other formats would 
+   make the pipeline usable across a wider range of real-world data sources.
 
-## Author conatct
+2. **API and cloud storage ingestion with scheduling** — Currently the pipeline 
+   runs only when a user manually uploads a file. Automating ingestion from 
+   REST APIs or cloud storage (S3, Google Cloud Storage) and scheduling runs 
+   would make this a fully autonomous pipeline.
 
-add links
+3. **CI/CD test gating** — Currently the pipeline runs regardless of test 
+   outcomes. Adding automated test gating would block execution if any test 
+   fails, preventing bad data or broken logic from reaching production.
+
+4. **Incremental loading** — Currently the pipeline reloads the entire dataset 
+   on every run. Incremental loading would process only rows added since the 
+   last run, reducing redundant computation and database writes at scale.
+
+5. **Alerting** — Currently there is no notification system for pipeline 
+   failures. Email or Slack alerts would ensure the developer is informed 
+   immediately when an automated run fails.
+
+## Author
+
+**Parth Shah**  
+[LinkedIn](https://www.linkedin.com/in/parth-shah-26154a372/) · [GitHub](https://github.com/parthrshah202-hash)
 
 ## License
 
-optional
+MIT License — see [LICENSE](LICENSE) for details.
