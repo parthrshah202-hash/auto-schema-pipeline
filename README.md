@@ -30,7 +30,7 @@ description and screenshots with demo video
   navigation and downloadable PDF report
 
 ## System Architecture
-![Architecture Diagram](docs/architecture.png)
+![Auto Schema Pipeline Architecture](./assets/architecture.png)
 
 The user uploads any CSV through the dashboard, triggering the pipeline. 
 The dataset is cleaned, schema is inferred, and a PostgreSQL table is 
@@ -154,15 +154,15 @@ auto-schema-pipeline/
 
 4. Configure environment variables  
    Copy `.env.example` to `.env` and fill in your values:   
-   DB_HOST=localhost   
-   DB_NAME=your_database_name   
-   DB_USER=your_postgres_user   
-   DB_PASSWORD=your_postgres_password   
-   GEMINI_API_KEY=your_key_here
+   `DB_HOST=localhost`   
+   `DB_NAME=your_database_name`  
+   `DB_USER=your_postgres_user`  
+   `DB_PASSWORD=your_postgres_password`  
+   `GEMINI_API_KEY=your_key_here`
 
 Get your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
 
-1. Create a PostgreSQL database with the name you used in `.env`
+5. Create a PostgreSQL database with the name you used in `.env`
 
 ### Run
 
@@ -170,9 +170,62 @@ Get your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
 streamlit run dashboard.py
 ```
 
-## Engineering challenges and Solutions
+## Engineering Challenges and Solutions
 
-para
+1. **Dual-Library Connection Conflict**   
+Initially both psycopg2 and SQLAlchemy were running side by side, creating 
+connection conflicts and unclear ownership. The root cause was not 
+understanding the distinction — psycopg2 provides low-level manual control 
+while SQLAlchemy handles connection pooling at a higher abstraction. Resolved 
+by consolidating entirely on SQLAlchemy and removing psycopg2 from the stack.
+
+2. **Hardcoded Credentials Pushed to GitHub**  
+The most serious mistake of the project. Database credentials were committed 
+directly into the public repo after forgetting to add `.env` to `.gitignore`. 
+Deleting the file alone was insufficient — credentials persist in git history. 
+The fix required full credential rotation and scrubbing the entire git history 
+with BFG Repo Cleaner.
+
+3. **Gemini Returning Unstructured Output**  
+Gemini doesn't consistently return clean JSON. Parsing failures occurred 
+because responses contained markdown fences, preamble text, or inconsistent 
+structure. The fix was prompt engineering for strict JSON-only output — but 
+resolving it required understanding why parsing was breaking, not just 
+patching the symptom.
+
+4. **Validating AI-Generated SQL Safely**  
+Gemini's queries could not be trusted blindly. A validation layer was built 
+before execution using a fail-fast `elif` chain. The design challenge was 
+deciding which failures should discard a single query versus which should halt 
+the pipeline entirely — without silently corrupting downstream results.
+
+5. **Automatic Chart Type Selection**  
+`visualise.py` initially defaulted to line charts regardless of data 
+structure. When query results contained categorical string keys, line charts 
+were meaningless. Resolved by building a `map_graph_types` function that 
+inspects the result structure and maps it to the correct chart type — bar, 
+pie, or line.
+
+6. **Output Size and Report Bloat**  
+Query results with thousands of rows produced oversized JSON files and 100+ 
+page PDF reports. Both problems shared the same root cause — no truncation on 
+query output. Capping results at 10 rows at the execution stage fixed both 
+simultaneously. Table and image alignment in the PDF required additional 
+iteration to get right.
+
+7. **Pipeline Architecture — Critical vs. Non-Critical Failures**  
+Deciding which failures should halt the pipeline versus log-and-continue was 
+an architectural decision, not a syntax one. `main.py` was also refactored 
+from a top-level script into a callable `run_pipeline()` function for 
+dashboard integration — a structural change that required rethinking error 
+handling and return values entirely.
+
+8. **Session State Management in Streamlit**  
+The two-state dashboard architecture required careful thinking about when to 
+reset state. Detecting a new file upload reliably across rerenders was the 
+specific challenge — naive approaches broke on rerender. The solution was 
+filename comparison via `st.session_state`, which correctly distinguishes a 
+new upload from a simple rerender.
 
 ## Future Enhancements
 
