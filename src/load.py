@@ -1,16 +1,12 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine,text,inspect
 from datetime import datetime
+from urllib.parse import quote_plus
 import time
 import logging
 import os
 
 load_dotenv()
-
-host = os.getenv("DB_HOST")
-db_name = os.getenv("DB_NAME")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +22,16 @@ def get_connection():
         Exception: If the database URL is malformed or the connection 
             cannot be established.
     """
+    host = os.getenv("DB_HOST")
+    port = os.getenv("DB_PORT")
+    db_name = os.getenv("DB_NAME")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    
     max_retries=3
     for attempt in range (max_retries):
         try:
-            db_url = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
+            db_url = f"postgresql+psycopg2://{user}:{quote_plus(password)}@{host}:{port}/{db_name}"
             engine=create_engine(db_url)
             with engine.connect() as connection:
                 logger.info("Connected to Database successfully")

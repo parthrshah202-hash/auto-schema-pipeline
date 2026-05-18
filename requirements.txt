@@ -2,6 +2,7 @@
 pandas>=2.3.3
 SQLAlchemy>=2.0.48
 python-dotenv>=1.2.1
+psycopg2-binary>=2.9.11
 
 # --- AI & LLM Orchestration ---
 google-genai>=1.73.1

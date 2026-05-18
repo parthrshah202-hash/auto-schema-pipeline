@@ -1,4 +1,16 @@
 import streamlit as st
+import os
+
+try:
+    os.environ["DB_HOST"] = st.secrets["DB_HOST"]
+    os.environ["DB_PORT"] = st.secrets["DB_PORT"]
+    os.environ["DB_NAME"] = st.secrets["DB_NAME"]
+    os.environ["DB_USER"] = st.secrets["DB_USER"]
+    os.environ["DB_PASSWORD"] = st.secrets["DB_PASSWORD"]
+    os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    pass  # Running locally, python-dotenv handles it
+
 import logging
 import json
 import pandas as pd
@@ -62,15 +74,18 @@ def show_landing_page():
         st.write("FPDF")
         
     st.subheader("Pipeline Run History")
-    engine=load.get_connection()
-    pipeline_history=load.get_run_history(engine)
-    pipeline_history_df=pd.DataFrame(pipeline_history)
-    pipeline_history_df['file_size']=pipeline_history_df['file_size']/1024/1024
-    pipeline_history_df=pipeline_history_df.rename(columns={'file_size':'file_size (MB)'})
-    st.dataframe(pipeline_history_df)
-    st.write("")
-    st.info("This indicates that Live DB is present")
-    st.divider()
+    try:
+        engine=load.get_connection()
+        pipeline_history=load.get_run_history(engine)
+        pipeline_history_df=pd.DataFrame(pipeline_history)
+        pipeline_history_df['file_size']=pipeline_history_df['file_size']/1024/1024
+        pipeline_history_df=pipeline_history_df.rename(columns={'file_size':'file_size (MB)'})
+        st.dataframe(pipeline_history_df)
+        st.write("")
+        st.info("This indicates that Live DB is present")
+        st.divider()
+    except Exception as e:
+        st.info("Please upload a CSV to see run history")
                 
     st.write("")
     st.info("👆 Upload a CSV file at the top to get started")
