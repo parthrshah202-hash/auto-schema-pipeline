@@ -10,7 +10,13 @@ Auto-Schema-Pipeline automates this entire manual process. Once you upload a CSV
 
 ## Demo
 
-description and screenshots with demo video
+**[Live Demo](https://auto-schema-pipeline.streamlit.app/)**
+
+Upload any CSV and the pipeline handles the rest — schema detection, 
+database load, AI query generation, visualisations, and a downloadable 
+PDF report.
+
+> Screenshots and demo video coming soon.
 
 ## What This Project Does
 
@@ -89,6 +95,7 @@ error is shown on the dashboard.
 | Dashboard      | Streamlit               |
 | Reporting      | FPDF2                   |
 | Config         | python-dotenv           |
+| Containerisation  | Docker               |
 
 ## Project Structure
 
@@ -117,55 +124,72 @@ auto-schema-pipeline/
 ├── .env.example             
 ├── .gitignore               
 ├── conftest.py              
-├── dashboard.py             
+├── dashboard.py
+├── Dockerfile 
+├── docker-compose.yml 
+├── .dockerignore              
 ├── main.py                  
 └── README.md                
 ```
 
 ## Local Setup
 
-### Prerequisites
-- Python 3.10+
-- PostgreSQL installed and running locally
+### Option 1 — Docker (Recommended)
 
-### Setup
+**Prerequisites:** Docker Desktop installed and running.
 
 1. Clone the repository
 ```bash
-   git clone https://github.com/parth-hue/auto-schema-pipeline.git
-   cd auto-schema-pipeline
+git clone https://github.com/parth-hue/auto-schema-pipeline.git
+cd auto-schema-pipeline
+```
+
+2. Configure environment variables  
+   Copy `.env.example` to `.env` and fill in your values:
+   `DATABASE_URL=your_supabase_connection_string`
+   `GEMINI_API_KEY=your_key_here`
+
+Get your Gemini API key from [aistudio.google.com](https://aistudio.google.com)  
+Get your Supabase connection string from [supabase.com](https://supabase.com)
+
+3. Run
+```bash
+docker compose up --build
+```
+Open `http://localhost:8501` in your browser.
+
+---
+
+### Option 2 — Manual Setup
+
+**Prerequisites:** Python 3.10+, PostgreSQL or Supabase account.
+
+1. Clone the repository
+```bash
+git clone https://github.com/parth-hue/auto-schema-pipeline.git
+cd auto-schema-pipeline
 ```
 
 2. Create and activate a virtual environment
 ```bash
-   python -m venv venv
+python -m venv venv
 
-   # Windows
-   .\venv\Scripts\Activate.ps1
+# Windows
+.\venv\Scripts\Activate.ps1
 
-   # Mac / Linux
-   source venv/bin/activate
+# Mac / Linux
+source venv/bin/activate
 ```
 
 3. Install dependencies
 ```bash
-   pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 4. Configure environment variables  
-   Copy `.env.example` to `.env` and fill in your values:   
-   `DB_HOST=localhost`   
-   `DB_NAME=your_database_name`  
-   `DB_USER=your_postgres_user`  
-   `DB_PASSWORD=your_postgres_password`  
-   `GEMINI_API_KEY=your_key_here`
+   Copy `.env.example` to `.env` and fill in your values.
 
-Get your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
-
-5. Create a PostgreSQL database with the name you used in `.env`
-
-### Run
-
+5. Run
 ```bash
 streamlit run dashboard.py
 ```

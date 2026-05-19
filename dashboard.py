@@ -49,7 +49,7 @@ def show_landing_page():
         
     st.subheader("🎯Project Flow")
     st.write("Designed using modular Python scripts to simulate a real-world ETL pipeline architecture.")
-    st.write("📂 CSV Upload ➡️ 🔍 Schema Detection ➡️ ✅Validation ➡️🗄️ PostgreSQL ➡️ 🤖 Gemini Analysis ➡️ 📊Dashboard ➡️ 📄 PDFReport")
+    st.write("📂 CSV Upload &nbsp;➔&nbsp; 🔍 Schema Detection &nbsp;➔&nbsp; ✅ Validation &nbsp;➔&nbsp; 🗄️ PostgreSQL &nbsp;➔&nbsp; 🤖 Gemini Analysis &nbsp;➔&nbsp; 📊 Dashboard &nbsp;➔&nbsp; 📄 PDF Report", unsafe_allow_html=True)
     st.divider()
     st.write("")
             
@@ -82,15 +82,22 @@ def show_landing_page():
         pipeline_history_df=pipeline_history_df.rename(columns={'file_size':'file_size (MB)'})
         st.dataframe(pipeline_history_df)
         st.write("")
-        st.info("This indicates that Live DB is present")
+        st.success("This indicates that Live DB is present")
         st.divider()
     except Exception as e:
-        st.info("Please upload a CSV to see run history")
+        st.warning("Please upload a CSV to see run history")
                 
     st.write("")
     st.info("👆 Upload a CSV file at the top to get started")
             
-    st.info("Made by PARTH SHAH to explore Data Engineering")
+    st.markdown(
+        """
+        <div style="text-align: center; color: #8892b0; font-size: 13px; margin-top: 50px; padding-top: 20px; border-top: 1px solid #2e3440;">
+            Made with ❤️ by Parth Shah | Exploring Data Engineering
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
 
 st.set_page_config(page_title="📊 Auto Schema Pipeline",layout="wide")
