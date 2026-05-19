@@ -1,0 +1,15 @@
+.logs/
+*.log
+.data/
+.output/
+.config/
+.git/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+assets/
+README.md
+LICENSE
+conftest.py
+.env.example
