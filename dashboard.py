@@ -93,7 +93,7 @@ def show_landing_page():
     st.markdown(
         """
         <div style="text-align: center; color: #8892b0; font-size: 13px; margin-top: 50px; padding-top: 20px; border-top: 1px solid #2e3440;">
-            Made with ❤️ by Parth Shah | Exploring Data Engineering
+            Made by Parth Shah | Exploring Data Engineering
         </div>
         """, 
         unsafe_allow_html=True
