@@ -1,6 +1,13 @@
 # AUTO-SCHEMA-PIPELINE
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?logo=postgresql)
+![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-FF4B4B?logo=streamlit)
+![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=google)
+![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-### Instead of spending hours figuring out what a CSV file is telling you, this pipeline will **automatically** detect the schema, and generate **AI-powered** analysis in seconds
+Upload **any** CSV.   
+Auto-Schema-Pipeline detects the schema, generates AI-powered SQL analysis, and produces insights in seconds.
 
 ## Problem Statement
 
@@ -139,7 +146,8 @@ auto-schema-pipeline/
 ├── Dockerfile 
 ├── docker-compose.yml 
 ├── .dockerignore              
-├── main.py                  
+├── main.py  
+├── requirements.txt                   
 └── README.md                
 ```
 
@@ -151,7 +159,7 @@ auto-schema-pipeline/
 
 1. Clone the repository
 ```bash
-git clone https://github.com/parth-hue/auto-schema-pipeline.git
+git clone https://github.com/parthrshah202-hash/auto-schema-pipeline.git
 cd auto-schema-pipeline
 ```
 
@@ -177,7 +185,7 @@ Open `http://localhost:8501` in your browser.
 
 1. Clone the repository
 ```bash
-git clone https://github.com/parth-hue/auto-schema-pipeline.git
+git clone https://github.com/parthrshah202-hash/auto-schema-pipeline.git
 cd auto-schema-pipeline
 ```
 
