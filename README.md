@@ -16,7 +16,18 @@ Upload any CSV and the pipeline handles the rest — schema detection,
 database load, AI query generation, visualisations, and a downloadable 
 PDF report.
 
-> Screenshots and demo video coming soon.
+![Pipeline Demo](./assets/demo.gif)
+
+### Screenshots
+
+**Landing Page**
+![Landing Page](./assets/landing.png)
+
+**Analysis Results**
+![Analysis Results](./assets/analysis.png)
+
+**PDF Report**
+![PDF Report](./assets/report.png)
 
 ## What This Project Does
 
